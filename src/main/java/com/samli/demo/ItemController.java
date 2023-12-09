@@ -45,6 +45,21 @@ public class ItemController {
     @PostMapping("/item")
     public String createItem(@RequestBody Item item) {
 
+        // Retrieve all items from the database
+        List<Item> allItems = repository.findAll();
+
+        // Check if the item already exists in the database
+        for (Item existingItem : allItems) {
+            if (
+                    existingItem.getItemType().equals(item.getItemType()) &&
+                    existingItem.getItemName().equals(item.getItemName()) &&
+                    existingItem.getBrand().equals(item.getBrand()) &&
+                    existingItem.getItemSize().equals(item.getItemSize()) &&
+                    existingItem.getUnit().equals(item.getUnit())) {
+                return "Item already saved!";
+            }
+        }
+
         // Check if the item ID is empty or null
         if (item.getItemId() == null || item.getItemId().isEmpty()) {
             // Generate the next item ID using the getNextSequence method
