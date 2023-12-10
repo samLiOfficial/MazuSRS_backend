@@ -181,27 +181,33 @@ public class ItemController {
 
 // A DTO (Data Transfer Object) class for representing items with formatted strings
 class ItemDTO {
+    // Private fields to store item ID and formatted string
     private String itemId;
     private String formattedString;
 
+    // Constructor to initialize the ItemDTO object with item ID and formatted string
     public ItemDTO(String itemId, String formattedString) {
-        this.itemId = itemId;
-        this.formattedString = formattedString;
+        this.itemId = itemId; // Set the provided item ID to the class field
+        this.formattedString = formattedString; // Set the provided formatted string to the class field
     }
 
+    // Getter method to retrieve the item ID
     public String getItemId() {
-        return itemId;
+        return itemId; // Return the stored item ID
     }
 
+    // Setter method to update the item ID
     public void setItemId(String itemId) {
-        this.itemId = itemId;
+        this.itemId = itemId; // Update the item ID with the provided value
     }
 
+    // Getter method to retrieve the formatted string
     public String getFormattedString() {
-        return formattedString;
+        return formattedString; // Return the stored formatted string
     }
 
+    // Setter method to update the formatted string
     public void setFormattedString(String formattedString) {
-        this.formattedString = formattedString;
+        this.formattedString = formattedString; // Update the formatted string with the provided value
     }
 }
