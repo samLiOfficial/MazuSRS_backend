@@ -1,4 +1,4 @@
-# Link to backend: https://github.com/samLiOfficial/MazuSRS_backend
+# Link to frontend: https://github.com/samLiOfficial/MazuSRS_frontend
 # MazuSRS: Inventory Management System
 
 ## Overview
