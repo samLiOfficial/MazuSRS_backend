@@ -85,11 +85,19 @@ public class StockOutRecordController {
         tempStockOutSumRepository.deleteAll();
 
         // Fetch all items and calculate the summary
+        // First get all the item from the item inventory list
         List<Item> allItems = itemRepository.findAll();
+        //then map through each of the item in the alltime list
         allItems.forEach(item -> {
+            // Get a list of stock out records for the specific start date and end date of an item
             List<StockOutRecord> records = repository.findByDateBetweenAndItemId(startDate, endDate, item.getItemId());
+
+            // Calculate the sum of stock out amounts
             int sumStockOutAmount = records.stream().mapToInt(StockOutRecord::getStockOutAmount).sum();
-            double sumSellPrice = records.stream().mapToDouble(StockOutRecord::getSellPrice).sum();
+
+            // Calculate the sum of sell price correctly by multiplying stockOutAmount with sellPrice for each record
+            // Using a in-line function converter
+            double sumSellPrice = records.stream().mapToDouble(record -> record.getStockOutAmount() * record.getSellPrice()).sum();
 
             if (!records.isEmpty()) {
                 TempStockOutSum tempSum = new TempStockOutSum();
@@ -118,7 +126,7 @@ public class StockOutRecordController {
 
         List<StockOutRecord> records = repository.findByDateBetweenAndItemId(startDate, endDate, itemId);
         int sumStockOutAmount = records.stream().mapToInt(StockOutRecord::getStockOutAmount).sum();
-        double sumSellPrice = records.stream().mapToDouble(StockOutRecord::getSellPrice).sum();
+        double sumSellPrice = records.stream().mapToDouble(record -> record.getStockOutAmount() * record.getSellPrice()).sum();
 
         if (!records.isEmpty()) {
             TempStockOutSum tempSum = new TempStockOutSum();

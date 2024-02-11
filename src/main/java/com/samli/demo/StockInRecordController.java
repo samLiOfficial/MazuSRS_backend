@@ -4,6 +4,7 @@ package com.samli.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -91,9 +92,17 @@ public class StockInRecordController {
         tempStockInSumRepository.deleteAll();
 
         // Fetch all items and calculate the summary
+        //allItems is a list of Items
         List<Item> allItems = itemRepository.findAll();
+
+        //For each of the item
         allItems.forEach(item -> {
+
+            //Get the list of the record bese on the current item
+            //So it should return a list of StockInRecord?
             List<StockInRecord> records = stockInRecordRepository.findByDateBetweenAndItemId(startDate, endDate, item.getItemId());
+            //Stock in amount is record
+            //int equals to records to stream, and then mapEachOneTo Int, using the getStockInAmount and then sum them up
             int sumStockInAmount = records.stream().mapToInt(StockInRecord::getStockInAmount).sum();
             double sumTotalPrice = records.stream().mapToDouble(StockInRecord::getTotalPrice).sum();
 
@@ -144,4 +153,17 @@ public class StockInRecordController {
 
         return null; // Or handle empty records case as per your requirement
     }
+
+    @DeleteMapping("/stock-in-record/{id}")
+    public ResponseEntity<?> deleteStockInRecord(@PathVariable String id) {
+        try {
+            stockInRecordRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+
 }
