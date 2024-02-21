@@ -4,6 +4,7 @@ package com.samli.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -147,4 +148,57 @@ public class StockOutRecordController {
 
         return null; // Or handle the case of empty records as per your requirement
     }
+
+    // New delete endpoint for stock-out records
+    @DeleteMapping("/stock-out-record/{id}")
+    public ResponseEntity<?> deleteStockOutRecord(@PathVariable String id) {
+        return repository.findById(id)
+                .map(record -> {
+                    // Fetch the InventoryStats for the item
+                    InventoryStats stats = inventoryStatsRepository.findByItemId(record.getItemId());
+                    if (stats != null) {
+                        // Increase the stock amount to account for the deletion of the stock-out record
+                        stats.setStockAmount(stats.getStockAmount() + record.getStockOutAmount());
+                        // Save the updated InventoryStats
+                        inventoryStatsRepository.save(stats);
+                    }
+
+                    // Delete the StockOutRecord
+                    repository.delete(record);
+                    return ResponseEntity.ok().build();
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
+
+    @PutMapping("/stock-out-record/{id}")
+    public ResponseEntity<StockOutRecord> updateStockOutRecord(@PathVariable String id, @RequestBody StockOutRecord updatedRecord) {
+        return repository.findById(id)
+                .map(record -> {
+                    // Calculate the difference between the new and the existing stockOutAmount
+                    int amountDifference = updatedRecord.getStockOutAmount() - record.getStockOutAmount();
+
+                    // Update the fields that are allowed to be edited
+                    record.setStockOutAmount(updatedRecord.getStockOutAmount());
+                    record.setSellPrice(updatedRecord.getSellPrice());
+
+                    // Save the updated record
+                    StockOutRecord savedRecord = repository.save(record);
+
+                    // Fetch the InventoryStats for the item and update it
+                    InventoryStats stats = inventoryStatsRepository.findByItemId(record.getItemId());
+                    if (stats != null) {
+                        // Adjust the stock amount in InventoryStats based on the new stockOutAmount
+                        // Note: Decreasing stockAmount because it's stock-out
+                        stats.setStockAmount(stats.getStockAmount() - amountDifference);
+                        inventoryStatsRepository.save(stats);
+                    }
+
+                    return ResponseEntity.ok(savedRecord);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
 }

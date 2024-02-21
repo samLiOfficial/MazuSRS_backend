@@ -4,6 +4,7 @@ package com.samli.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -156,14 +157,55 @@ public class StockInRecordController {
 
     @DeleteMapping("/stock-in-record/{id}")
     public ResponseEntity<?> deleteStockInRecord(@PathVariable String id) {
-        try {
-            stockInRecordRepository.deleteById(id);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return stockInRecordRepository.findById(id)
+                .map(stockInRecord -> {
+                    // Fetch the InventoryStats for the item
+                    InventoryStats stats = inventoryStatsRepository.findByItemId(stockInRecord.getItemId());
+                    if (stats != null) {
+                        // Decrease the stock amount
+                        stats.setStockAmount(stats.getStockAmount() - stockInRecord.getStockInAmount());
+                        // Save the updated InventoryStats
+                        inventoryStatsRepository.save(stats);
+                    }
+
+                    // Delete the StockInRecord
+                    stockInRecordRepository.delete(stockInRecord);
+
+                    return ResponseEntity.ok().build();
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
+    @PutMapping("/stock-in-record/{id}")
+    public ResponseEntity<StockInRecord> updateStockInRecord(@PathVariable String id, @RequestBody StockInRecord updatedRecord) {
+        return stockInRecordRepository.findById(id)
+                .map(record -> {
+                    // Calculate the difference between the new and the existing stockInAmount
+                    int amountDifference = updatedRecord.getStockInAmount() - record.getStockInAmount();
+
+                    // Directly updating the fields that are allowed to be edited
+                    record.setStockInAmount(updatedRecord.getStockInAmount());
+                    record.setUnitPrice(updatedRecord.getUnitPrice());
+
+                    // Recalculate the total price based on the updated quantity and unit price
+                    double recalculatedTotalPrice = updatedRecord.getStockInAmount() * updatedRecord.getUnitPrice();
+                    record.setTotalPrice(recalculatedTotalPrice);
+
+                    // Save the updated record
+                    StockInRecord savedRecord = stockInRecordRepository.save(record);
+
+                    // Fetch the InventoryStats for the item and update it
+                    InventoryStats stats = inventoryStatsRepository.findByItemId(record.getItemId());
+                    if (stats != null) {
+                        stats.setStockAmount(stats.getStockAmount() + amountDifference);
+                        inventoryStatsRepository.save(stats);
+                    }
+
+                    return new ResponseEntity<>(savedRecord, HttpStatus.OK);
+                })
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 
 
 }
