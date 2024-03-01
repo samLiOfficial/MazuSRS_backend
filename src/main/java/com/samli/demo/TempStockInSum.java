@@ -1,5 +1,4 @@
 // This class represents a document in the "temp_stock_in_sum" collection of MongoDB.
-
 package com.samli.demo;
 
 import org.springframework.data.annotation.Id;
@@ -40,83 +39,83 @@ public class TempStockInSum {
     }
 
     // Getter and Setter methods for class fields
-    public String getId() {
+    public String getId() { // Method to get the document ID
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(String id) { // Method to set the document ID
         this.id = id;
     }
 
-    public String getItemName() {
+    public String getItemName() { // Method to get the item name
         return itemName;
     }
 
-    public void setItemName(String itemName) {
+    public void setItemName(String itemName) { // Method to set the item name
         this.itemName = itemName;
     }
 
-    public String getItemSize() {
+    public String getItemSize() { // Method to get the item size
         return itemSize;
     }
 
-    public void setItemSize(String itemSize) {
+    public void setItemSize(String itemSize) { // Method to set the item size
         this.itemSize = itemSize;
     }
 
-    public String getUnit() {
+    public String getUnit() { // Method to get the unit
         return unit;
     }
 
-    public void setUnit(String unit) {
+    public void setUnit(String unit) { // Method to set the unit
         this.unit = unit;
     }
 
-    public String getItemType() {
+    public String getItemType() { // Method to get the item type
         return itemType;
     }
 
-    public void setItemType(String itemType) {
+    public void setItemType(String itemType) { // Method to set the item type
         this.itemType = itemType;
     }
 
-    public String getBrand() {
+    public String getBrand() { // Method to get the brand
         return brand;
     }
 
-    public void setBrand(String brand) {
+    public void setBrand(String brand) { // Method to set the brand
         this.brand = brand;
     }
 
-    public LocalDate getStartDate() {
+    public LocalDate getStartDate() { // Method to get the start date
         return startDate;
     }
 
-    public void setStartDate(LocalDate startDate) {
+    public void setStartDate(LocalDate startDate) { // Method to set the start date
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate() {
+    public LocalDate getEndDate() { // Method to get the end date
         return endDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
+    public void setEndDate(LocalDate endDate) { // Method to set the end date
         this.endDate = endDate;
     }
 
-    public int getSumStockInAmount() {
+    public int getSumStockInAmount() { // Method to get the total stock-in amount
         return sumStockInAmount;
     }
 
-    public void setSumStockInAmount(int sumStockInAmount) {
+    public void setSumStockInAmount(int sumStockInAmount) { // Method to set the total stock-in amount
         this.sumStockInAmount = sumStockInAmount;
     }
 
-    public double getSumTotalPrice() {
+    public double getSumTotalPrice() { // Method to get the total sum of prices
         return sumTotalPrice;
     }
 
-    public void setSumTotalPrice(double sumTotalPrice) {
+    public void setSumTotalPrice(double sumTotalPrice) { // Method to set the total sum of prices
         this.sumTotalPrice = sumTotalPrice;
     }
 }

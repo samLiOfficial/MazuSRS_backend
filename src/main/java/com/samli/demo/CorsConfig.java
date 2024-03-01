@@ -24,7 +24,11 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
 
-        // Add an allowed origin (in this case, the React server address)
+        // Add allowed origins for both the www and non-www versions of your domain
+        config.addAllowedOrigin("https://mazusrs.com");
+        config.addAllowedOrigin("https://www.mazusrs.com");
+
+        // Add an allowed origin for local development
         config.addAllowedOrigin("http://localhost:3000");
 
         // Allow all headers and methods

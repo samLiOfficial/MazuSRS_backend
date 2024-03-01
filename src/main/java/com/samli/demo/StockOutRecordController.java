@@ -1,12 +1,10 @@
 // This is a controller class named 'StockOutRecordController' responsible for handling stock-out record-related HTTP requests.
-
 package com.samli.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -170,8 +168,6 @@ public class StockOutRecordController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-
-
     @PutMapping("/stock-out-record/{id}")
     public ResponseEntity<StockOutRecord> updateStockOutRecord(@PathVariable String id, @RequestBody StockOutRecord updatedRecord) {
         return repository.findById(id)
@@ -199,6 +195,4 @@ public class StockOutRecordController {
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-
 }

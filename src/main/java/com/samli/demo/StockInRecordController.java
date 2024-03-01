@@ -1,5 +1,4 @@
 // This class 'StockInRecordController' serves as a controller for handling stock-in record-related operations
-
 package com.samli.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -206,6 +205,4 @@ public class StockInRecordController {
                 })
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
-
 }
