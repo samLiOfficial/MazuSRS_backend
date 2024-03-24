@@ -123,29 +123,42 @@ public class StockOutRecordController {
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam("itemId") String itemId) {
 
-        List<StockOutRecord> records = repository.findByDateBetweenAndItemId(startDate, endDate, itemId);
-        int sumStockOutAmount = records.stream().mapToInt(StockOutRecord::getStockOutAmount).sum();
-        double sumSellPrice = records.stream().mapToDouble(record -> record.getStockOutAmount() * record.getSellPrice()).sum();
+        // Initialize the summary object at the start.
+        TempStockOutSum tempSum = new TempStockOutSum();
 
-        if (!records.isEmpty()) {
-            TempStockOutSum tempSum = new TempStockOutSum();
-            Item item = itemRepository.findById(itemId).orElse(null);
-            if (item != null) {
-                tempSum.setItemName(item.getItemName());
-                tempSum.setItemSize(item.getItemSize());
-                tempSum.setUnit(item.getUnit());
-                tempSum.setItemType(item.getItemType());
-                tempSum.setBrand(item.getBrand());
-            }
-            tempSum.setStartDate(startDate);
-            tempSum.setEndDate(endDate);
-            tempSum.setSumStockOutAmount(sumStockOutAmount);
-            tempSum.setSumSellPrice(sumSellPrice);
-            return tempSum;
+        // Fetch item details once at the beginning, to set in the summary regardless of record existence.
+        Item item = itemRepository.findById(itemId).orElse(null);
+
+        if (item != null) {
+            tempSum.setItemName(item.getItemName());
+            tempSum.setItemSize(item.getItemSize());
+            tempSum.setUnit(item.getUnit());
+            tempSum.setItemType(item.getItemType());
+            tempSum.setBrand(item.getBrand());
         }
 
-        return null; // Or handle the case of empty records as per your requirement
+        // Set the date range for the summary.
+        tempSum.setStartDate(startDate);
+        tempSum.setEndDate(endDate);
+
+        // Fetch records.
+        List<StockOutRecord> records = repository.findByDateBetweenAndItemId(startDate, endDate, itemId);
+
+        if (records.isEmpty()) {
+            // Set sums to 0 if no records are found.
+            tempSum.setSumStockOutAmount(0);
+            tempSum.setSumSellPrice(0.0);
+        } else {
+            // Calculate and set sums only if records are found.
+            int sumStockOutAmount = records.stream().mapToInt(StockOutRecord::getStockOutAmount).sum();
+            double sumSellPrice = records.stream().mapToDouble(record -> record.getStockOutAmount() * record.getSellPrice()).sum();
+            tempSum.setSumStockOutAmount(sumStockOutAmount);
+            tempSum.setSumSellPrice(sumSellPrice);
+        }
+
+        return tempSum; // Return the summary object.
     }
+
 
     // New delete endpoint for stock-out records
     @DeleteMapping("/stock-out-record/{id}")

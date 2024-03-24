@@ -130,29 +130,41 @@ public class StockInRecordController {
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam("itemId") String itemId) {
 
-        List<StockInRecord> records = stockInRecordRepository.findByDateBetweenAndItemId(startDate, endDate, itemId);
-        int sumStockInAmount = records.stream().mapToInt(StockInRecord::getStockInAmount).sum();
-        double sumTotalPrice = records.stream().mapToDouble(StockInRecord::getTotalPrice).sum();
+        // Initialize summary object at the beginning so it can be returned regardless of record existence.
+        TempStockInSum tempSum = new TempStockInSum();
+        // Fetch the item details once at the beginning.
+        Item item = itemRepository.findById(itemId).orElse(null);
 
-        if (!records.isEmpty()) {
-            TempStockInSum tempSum = new TempStockInSum();
-            Item item = itemRepository.findById(itemId).orElse(null);
-            if (item != null) {
-                tempSum.setItemName(item.getItemName());
-                tempSum.setItemSize(item.getItemSize());
-                tempSum.setUnit(item.getUnit());
-                tempSum.setItemType(item.getItemType());
-                tempSum.setBrand(item.getBrand());
-            }
-            tempSum.setStartDate(startDate);
-            tempSum.setEndDate(endDate);
-            tempSum.setSumStockInAmount(sumStockInAmount);
-            tempSum.setSumTotalPrice(sumTotalPrice);
-            return tempSum;
+        // If the item exists, set its details in the summary object.
+        if (item != null) {
+            tempSum.setItemName(item.getItemName());
+            tempSum.setItemSize(item.getItemSize());
+            tempSum.setUnit(item.getUnit());
+            tempSum.setItemType(item.getItemType());
+            tempSum.setBrand(item.getBrand());
         }
 
-        return null; // Or handle empty records case as per your requirement
+        // Set the date range for the summary.
+        tempSum.setStartDate(startDate);
+        tempSum.setEndDate(endDate);
+
+        // Fetch records.
+        List<StockInRecord> records = stockInRecordRepository.findByDateBetweenAndItemId(startDate, endDate, itemId);
+
+        // Check if records exist. If not, set sums to 0. Otherwise, calculate sums.
+        if (records.isEmpty()) {
+            tempSum.setSumStockInAmount(0); // Set to 0 if no records
+            tempSum.setSumTotalPrice(0.0); // Set to 0.0 if no records
+        } else {
+            int sumStockInAmount = records.stream().mapToInt(StockInRecord::getStockInAmount).sum();
+            double sumTotalPrice = records.stream().mapToDouble(StockInRecord::getTotalPrice).sum();
+            tempSum.setSumStockInAmount(sumStockInAmount);
+            tempSum.setSumTotalPrice(sumTotalPrice);
+        }
+
+        return tempSum; // Return the summary object with either calculated sums or zeroes.
     }
+
 
     @DeleteMapping("/stock-in-record/{id}")
     public ResponseEntity<?> deleteStockInRecord(@PathVariable String id) {
